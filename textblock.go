@@ -74,22 +74,22 @@ func New(d *font.Drawer, lines []string, opts *Options) TextBlock {
 	}
 
 	return &textBlock{
-		d:         d,
-		width:     width / 2,
-		height:    height / 2,
-		lines:     lines,
-		spacing:   spacing,
-		alignment: opts.Alignment,
+		d:       d,
+		width:   width / 2,
+		height:  height / 2,
+		lines:   lines,
+		spacing: spacing,
+		opts:    opts,
 	}
 }
 
 type textBlock struct {
-	d         *font.Drawer
-	width     fixed.Int26_6
-	height    fixed.Int26_6
-	lines     []string
-	spacing   fixed.Int26_6
-	alignment Alignment
+	d       *font.Drawer
+	width   fixed.Int26_6
+	height  fixed.Int26_6
+	lines   []string
+	spacing fixed.Int26_6
+	opts    *Options
 }
 
 // DrawAt draws the text block, centered on the given point.
@@ -97,9 +97,9 @@ func (tb *textBlock) DrawAt(pt image.Point) {
 	pos := fixed.I(pt.Y) - tb.height + (tb.d.Face.Metrics().Height - tb.d.Face.Metrics().Descent)
 	for _, str := range tb.lines {
 		dx := tb.width
-		if tb.alignment == AlignmentCenter {
+		if tb.opts.alignment() == AlignmentCenter {
 			dx = tb.d.MeasureString(str) / 2
-		} else if tb.alignment == AlignmentRight {
+		} else if tb.opts.alignment() == AlignmentRight {
 			dx = -dx + tb.d.MeasureString(str)
 		}
 		tb.d.Dot = fixed.Point26_6{
