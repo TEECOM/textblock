@@ -7,6 +7,7 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
+// Alignment indicates how text should be aligned within a text block.
 type Alignment int
 
 const (
