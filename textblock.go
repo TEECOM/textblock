@@ -45,15 +45,18 @@ func (o *Options) alignment() Alignment {
 }
 
 type TextBlock interface {
-	// BoundsAt returns a bounding rectangle that would encompass the textblock
-	// if it were centered at the given point.
+	// BoundsAt returns a bounding rectangle that would encompass the text block
+	// if it were positioned at the given point.
 	BoundsAt(image.Point) image.Rectangle
 
-	// DrawAt draws the text block centered on the given point.
+	// DrawAt draws the text block positioned at the given point.
 	DrawAt(image.Point)
 }
 
-// New initializes a new textblock.
+// New initializes a new text block.
+//
+// The returned TextBlock will center the text when drawn. The returned
+// text block is not concurrency safe, as the provided Drawer is not.
 func New(d *font.Drawer, lines []string, opts *Options) TextBlock {
 	spacing := fixed.I(int(float64(d.Face.Metrics().Height.Ceil()) * opts.spacing()))
 	spaces := fixed.I(0)
@@ -80,7 +83,6 @@ func New(d *font.Drawer, lines []string, opts *Options) TextBlock {
 	}
 }
 
-// textBlock is used to print a block of text on an image.
 type textBlock struct {
 	d         *font.Drawer
 	width     fixed.Int26_6
@@ -90,6 +92,7 @@ type textBlock struct {
 	alignment Alignment
 }
 
+// DrawAt draws the text block, centered on the given point.
 func (tb *textBlock) DrawAt(pt image.Point) {
 	pos := fixed.I(pt.Y) - tb.height + (tb.d.Face.Metrics().Height - tb.d.Face.Metrics().Descent)
 	for _, str := range tb.lines {
@@ -108,6 +111,8 @@ func (tb *textBlock) DrawAt(pt image.Point) {
 	}
 }
 
+// BoundsAt returns the rectangle that would bound the text block if it were
+// centered at the given point.
 func (tb *textBlock) BoundsAt(pt image.Point) image.Rectangle {
 	return image.Rectangle{
 		Min: image.Point{
